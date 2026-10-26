@@ -1,0 +1,23 @@
+trigger:
+- main
+pool:
+  vmImage: ubuntu-latest
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: sdk
+    version: 8.x
+- script: dotnet restore src/PortCall.Api/PortCall.Api.csproj
+  displayName: Restore API
+- script: dotnet build src/PortCall.Api/PortCall.Api.csproj --configuration Release --no-restore
+  displayName: Build API
+- script: dotnet test tests/PortCall.Api.Tests/PortCall.Api.Tests.csproj --configuration Release
+  displayName: Run xUnit tests
+- task: NodeTool@0
+  inputs:
+    versionSpec: '20.x'
+- script: |
+    cd client
+    npm ci
+    npm run build
+  displayName: Build Angular client
